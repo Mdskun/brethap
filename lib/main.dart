@@ -57,12 +57,22 @@ Future<void> main() async {
     sessions = await Hive.openBox(SESSIONS_BOX);
   }
 
+  Box customSounds;
+  try {
+    customSounds = await Hive.openBox("custom_sounds");
+  } catch (e) {
+    debugPrint(e.toString());
+    await Hive.deleteBoxFromDisk("custom_sounds");
+    customSounds = await Hive.openBox("custom_sounds");
+  }
+
   runApp(
     MainWidget(
       appName: appName,
       version: version,
       preferences: preferences,
       sessions: sessions,
+      customSounds: customSounds,
     ),
   );
 }
@@ -74,41 +84,51 @@ class MainWidget extends StatelessWidget {
     required this.version,
     required this.preferences,
     required this.sessions,
+    required this.customSounds,
   });
 
   final String appName, version;
-  final Box preferences, sessions;
+  final Box preferences, sessions, customSounds;
 
   @override
   Widget build(BuildContext context) {
-    MaterialColor primaryColor = COLORS_PRIMARY[0] as MaterialColor;
-    Color backgroundColor = const Color(COLOR_BACKGROUND);
-    if (preferences.isNotEmpty) {
-      Preference preference = preferences.getAt(0);
-      primaryColor = COLORS_PRIMARY[preference.colors[0]] as MaterialColor;
-      backgroundColor = Color(preference.colors[1]);
-    }
+    return ValueListenableBuilder(
+      valueListenable: preferences.listenable(),
+      builder: (context, Box box, _) {
+        MaterialColor primaryColor = COLORS_PRIMARY[0] as MaterialColor;
+        if (box.isNotEmpty) {
+          Preference preference = box.getAt(0);
+          primaryColor = COLORS_PRIMARY[preference.colors[0]] as MaterialColor;
+        }
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: primaryColor,
-        canvasColor: backgroundColor,
-        useMaterial3: false,
-      ),
-      darkTheme: ThemeData.dark().copyWith(
-        primaryColor: Colors.blue,
-        // ignore: deprecated_member_use
-        useMaterial3: false,
-      ),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: HomeWidget(
-        appName: appName,
-        version: version,
-        preferences: preferences,
-        sessions: sessions,
-      ),
+        return MaterialApp(
+          key: ValueKey(primaryColor.value),
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: primaryColor,
+              brightness: Brightness.light,
+            ),
+            useMaterial3: true,
+          ),
+          darkTheme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: primaryColor,
+              brightness: Brightness.dark,
+            ),
+            useMaterial3: true,
+          ),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: HomeWidget(
+            appName: appName,
+            version: version,
+            preferences: preferences,
+            sessions: sessions,
+            customSounds: customSounds,
+          ),
+        );
+      },
     );
   }
 }

@@ -7,8 +7,11 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:watch_connectivity/watch_connectivity.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:brethap/utils.dart';
 import 'package:brethap/constants.dart';
@@ -26,19 +29,11 @@ class HomeWidget extends StatefulWidget {
     required this.version,
     required this.preferences,
     required this.sessions,
+    required this.customSounds,
   });
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String appName, version;
-  final Box preferences, sessions;
+  final Box preferences, sessions, customSounds;
 
   // These static variables are used with flutter tests
   static String keyPreferences = "Preferences",
@@ -451,6 +446,32 @@ class _HomeWidgetState extends State<HomeWidget> {
     });
   }
 
+  Widget _buildInfoCard(
+    BuildContext context,
+    IconData icon,
+    String value,
+    String label,
+  ) {
+    return Column(
+      children: [
+        Icon(icon, color: Theme.of(context).colorScheme.primary, size: 28),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called
@@ -465,16 +486,19 @@ class _HomeWidgetState extends State<HomeWidget> {
     // Breathing animation constants
     const double circleHeight = 150.0,
         circleWidth = 150.0,
-        circlePadding = 8.0,
         ringWidth = 4.0;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(_preferenceName),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: <Widget>[
           Visibility(
             visible: !_isRunning,
             child: PopupMenuButton<String>(
+              icon: const Icon(Icons.bookmarks_outlined),
               itemBuilder: (BuildContext context) {
                 int i = 0;
                 List<PopupMenuItem<String>> menuItems = [];
@@ -515,25 +539,20 @@ class _HomeWidgetState extends State<HomeWidget> {
           ),
         ],
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
+            ],
+          ),
+        ),
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             GestureDetector(
               onTap: () {
@@ -544,175 +563,315 @@ class _HomeWidgetState extends State<HomeWidget> {
               child: Text(
                 key: Key(HomeWidget.keyStatusText),
                 _status,
-                style: Theme.of(context).textTheme.headlineSmall,
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.w300,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
             ),
-
             Center(
               child: Stack(
+                alignment: Alignment.center,
                 clipBehavior: Clip.none,
                 children: <Widget>[
                   // Breathing animation outer ring
                   Visibility(
                     visible: _ringVisible,
-                    child: Padding(
-                      padding: EdgeInsets.all(circlePadding),
-                      child: Container(
-                        width: circleWidth,
-                        height: circleHeight,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.grey.shade300,
-                            width: ringWidth,
-                          ),
+                    child: Container(
+                      width: circleWidth + 20,
+                      height: circleHeight + 20,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.2),
+                          width: ringWidth,
                         ),
                       ),
                     ),
                   ),
 
                   // Breathing animation circle
-                  Transform.scale(
-                    scale: _scale,
-                    child: Padding(
-                      padding: EdgeInsets.all(circlePadding),
-                      child: Container(
-                        width: circleWidth,
-                        height: circleHeight,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          shape: BoxShape.circle,
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 100),
+                    width: circleWidth * (0.5 + _scale * 0.5),
+                    height: circleHeight * (0.5 + _scale * 0.5),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.3),
+                          blurRadius: 20,
+                          spreadRadius: 5 * _scale,
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.timer, color: Theme.of(context).primaryColor),
-                const SizedBox(width: 5),
-                Text(
+                _buildInfoCard(
+                  context,
+                  Icons.timer_outlined,
                   getDurationString(_duration),
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  AppLocalizations.of(context).duration,
                 ),
-                SizedBox(width: 5),
-                Icon(Icons.air, color: Theme.of(context).primaryColor),
-                SizedBox(width: 5),
-                Text(
+                const SizedBox(width: 20),
+                _buildInfoCard(
+                  context,
+                  Icons.air_outlined,
                   _breaths.toString(),
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  AppLocalizations.of(context).breaths,
                 ),
               ],
             ),
           ],
         ),
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage("images/launcher.png"),
+      drawer: NavigationDrawer(
+        onDestinationSelected: (int index) async {
+          Navigator.pop(context); // Close drawer
+          if (index == 0) {
+            _isRunning = false;
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PreferencesWidget(
+                  preferences: widget.preferences,
+                  customSounds: widget.customSounds,
+                  callback: _preferenceUpdated,
                 ),
               ),
-              child: Text(widget.appName),
-            ),
-            ListTile(
-              key: Key(HomeWidget.keyPreferences),
-              title: Text(AppLocalizations.of(context).preferences),
-              leading: const Icon(Icons.settings),
-              onTap: () async {
-                _isRunning = false;
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PreferencesWidget(
-                      preferences: widget.preferences,
-                      callback: _preferenceUpdated,
-                    ),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              key: Key(HomeWidget.keySessions),
-              title: Text(AppLocalizations.of(context).sessions),
-              leading: const Icon(Icons.format_list_numbered_outlined),
-              onTap: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        SessionsWidget(sessions: widget.sessions),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              key: Key(HomeWidget.keyCalendar),
-              title: Text(AppLocalizations.of(context).calendar),
-              leading: const Icon(Icons.calendar_today),
-              onTap: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        SessionsCalendarWidget(sessions: widget.sessions),
-                  ),
-                );
-              },
-            ),
-            SafeArea(
-              child: AboutListTile(
-                icon: const Icon(Icons.info_outline),
-                applicationIcon: Image.asset('images/animated.webp'),
-                applicationName: widget.appName,
-                applicationVersion: widget.version,
-                applicationLegalese: COPYRIGHT,
-                aboutBoxChildren: [
-                  ListTile(
-                    title: Text(AppLocalizations.of(context).help),
-                    leading: const Icon(Icons.help),
-                    onTap: () {
-                      _showWebDialog(
-                        AppLocalizations.of(context).help,
-                        HELP_URL,
-                      );
-                    },
-                  ),
-                  ListTile(
-                    title: Text(AppLocalizations.of(context).reportIssue),
-                    leading: const Icon(Icons.bug_report),
-                    onTap: () {
-                      _showWebDialog(
-                        AppLocalizations.of(context).reportIssue,
-                        BUGS_URL,
-                      );
-                    },
-                  ),
-                  Center(child: Image.asset('images/github-qr.png')),
-                ],
+            );
+          } else if (index == 1) {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SessionsWidget(sessions: widget.sessions),
               ),
+            );
+          } else if (index == 2) {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    SessionsCalendarWidget(sessions: widget.sessions),
+              ),
+            );
+          }
+        },
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primaryContainer,
             ),
-          ],
-        ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset("images/launcher.png", height: 64),
+                const SizedBox(height: 8),
+                Text(
+                  widget.appName,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          NavigationDrawerDestination(
+            key: Key(HomeWidget.keyPreferences),
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: const Icon(Icons.settings),
+            label: Text(AppLocalizations.of(context).preferences),
+          ),
+          NavigationDrawerDestination(
+            key: Key(HomeWidget.keySessions),
+            icon: const Icon(Icons.format_list_numbered_outlined),
+            selectedIcon: const Icon(Icons.format_list_numbered),
+            label: Text(AppLocalizations.of(context).sessions),
+          ),
+          NavigationDrawerDestination(
+            key: Key(HomeWidget.keyCalendar),
+            icon: const Icon(Icons.calendar_today_outlined),
+            selectedIcon: const Icon(Icons.calendar_today),
+            label: Text(AppLocalizations.of(context).calendar),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+            child: Text(
+              "Appearance",
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              alignment: WrapAlignment.center,
+              children: List.generate(COLORS_PRIMARY.length, (index) {
+                Preference p = widget.preferences.getAt(0);
+                bool isSelected = p.colors[0] == index;
+                return GestureDetector(
+                  onTap: () async {
+                    Preference p = widget.preferences.getAt(0);
+                    p.colors[0] = index;
+                    await widget.preferences.putAt(0, p);
+                  },
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: COLORS_PRIMARY[index],
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.onSurface
+                            : Colors.transparent,
+                        width: 2,
+                      ),
+                      boxShadow: isSelected ? [
+                        BoxShadow(
+                          color: COLORS_PRIMARY[index].withValues(alpha: 0.4),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                        )
+                      ] : null,
+                    ),
+                    child: isSelected
+                        ? const Icon(Icons.check, color: Colors.white, size: 18)
+                        : null,
+                  ),
+                );
+              }),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+            child: Text(
+              "Custom Tones",
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+          ),
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 28),
+            leading: const Icon(Icons.library_music_outlined),
+            title: const Text("Add Custom Sound"),
+            onTap: () async {
+              FilePickerResult? result = await FilePicker.platform.pickFiles(
+                type: FileType.audio,
+              );
+
+              if (result != null) {
+                File file = File(result.files.single.path!);
+                String fileName = result.files.single.name;
+                
+                // Save to app docs
+                Directory appDocDir = await getApplicationDocumentsDirectory();
+                String newPath = "${appDocDir.path}/$fileName";
+                await file.copy(newPath);
+
+                // Add to Hive if not exists
+                if (!widget.customSounds.values.contains(newPath)) {
+                  await widget.customSounds.add(newPath);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Added $fileName to sounds")),
+                    );
+                  }
+                }
+              }
+            },
+          ),
+          ValueListenableBuilder(
+            valueListenable: widget.customSounds.listenable(),
+            builder: (context, Box box, _) {
+              if (box.isEmpty) return const SizedBox.shrink();
+              return Column(
+                children: box.values.map((path) {
+                  String name = path.split('/').last;
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 28),
+                    dense: true,
+                    leading: const Icon(Icons.music_note, size: 20),
+                    title: Text(name, style: const TextStyle(fontSize: 13)),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete_outline, size: 20),
+                      onPressed: () => box.deleteAt(box.values.toList().indexOf(path)),
+                    ),
+                  );
+                }).toList(),
+              );
+            },
+          ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(28, 16, 28, 10),
+            child: Divider(),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: AboutListTile(
+              icon: const Icon(Icons.info_outline),
+              applicationIcon: Image.asset('images/animated.webp', height: 48),
+              applicationName: widget.appName,
+              applicationVersion: widget.version,
+              applicationLegalese: COPYRIGHT,
+              aboutBoxChildren: [
+                ListTile(
+                  title: Text(AppLocalizations.of(context).help),
+                  leading: const Icon(Icons.help),
+                  onTap: () {
+                    _showWebDialog(AppLocalizations.of(context).help, HELP_URL);
+                  },
+                ),
+                ListTile(
+                  title: Text(AppLocalizations.of(context).reportIssue),
+                  leading: const Icon(Icons.bug_report),
+                  onTap: () {
+                    _showWebDialog(
+                      AppLocalizations.of(context).reportIssue,
+                      BUGS_URL,
+                    );
+                  },
+                ),
+                Center(child: Image.asset('images/github-qr.png')),
+              ],
+            ),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.large(
         onPressed: () {
           _buttonPressed(context);
         },
         tooltip: _isRunning
             ? AppLocalizations.of(context).stop
             : AppLocalizations.of(context).start,
+        backgroundColor: _isRunning
+            ? Theme.of(context).colorScheme.errorContainer
+            : Theme.of(context).colorScheme.primaryContainer,
+        foregroundColor: _isRunning
+            ? Theme.of(context).colorScheme.onErrorContainer
+            : Theme.of(context).colorScheme.onPrimaryContainer,
         child: _isRunning
-            ? const Icon(Icons.stop_sharp)
-            : const Icon(Icons.not_started_sharp),
+            ? const Icon(Icons.stop_rounded, size: 40)
+            : const Icon(Icons.play_arrow_rounded, size: 40),
       ),
     );
   }

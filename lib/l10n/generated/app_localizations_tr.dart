@@ -128,6 +128,18 @@ class AppLocalizationsTr extends AppLocalizations {
   String get enterAName => 'Adınızı girin';
 
   @override
+  String get general => 'General';
+
+  @override
+  String get feedback => 'Feedback';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get name => 'Name';
+
+  @override
   String get sessions => 'Oturumlar';
 
   @override

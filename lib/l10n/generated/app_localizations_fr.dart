@@ -128,6 +128,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get enterAName => 'Entrer un nom';
 
   @override
+  String get general => 'General';
+
+  @override
+  String get feedback => 'Feedback';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get name => 'Name';
+
+  @override
   String get sessions => 'Sessions';
 
   @override

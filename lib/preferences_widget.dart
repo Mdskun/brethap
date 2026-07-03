@@ -761,7 +761,7 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
               ),
             ],
           ),
-
+          Divider(key: Key(PreferencesWidget.keyDrag), height: 1),
           const SizedBox(height: 100),
         ],
       ),

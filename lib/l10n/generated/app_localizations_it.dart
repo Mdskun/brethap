@@ -128,16 +128,22 @@ class AppLocalizationsIt extends AppLocalizations {
   String get enterAName => 'Inserisci un nome';
 
   @override
-  String get general => 'General';
+  String get general => 'Generale';
 
   @override
   String get feedback => 'Feedback';
 
   @override
-  String get appearance => 'Appearance';
+  String get appearance => 'Aspetto';
 
   @override
-  String get name => 'Name';
+  String get customTones => 'Toni personalizzati';
+
+  @override
+  String get addCustomSound => 'Aggiungi suono';
+
+  @override
+  String get name => 'Nome';
 
   @override
   String get sessions => 'Sessioni';

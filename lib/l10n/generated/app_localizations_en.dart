@@ -136,6 +136,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearance => 'Appearance';
 
   @override
+  String get customTones => 'Custom Tones';
+
+  @override
+  String get addCustomSound => 'Add Custom Sound';
+
+  @override
   String get name => 'Name';
 
   @override

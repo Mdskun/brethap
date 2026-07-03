@@ -486,6 +486,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     // Breathing animation constants
     const double circleHeight = 150.0,
         circleWidth = 150.0,
+        circlePadding = 8.0,
         ringWidth = 4.0;
 
     return Scaffold(
@@ -552,7 +553,7 @@ class _HomeWidgetState extends State<HomeWidget> {
           ),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             GestureDetector(
               onTap: () {
@@ -569,53 +570,58 @@ class _HomeWidgetState extends State<HomeWidget> {
                 ),
               ),
             ),
+            const SizedBox(height: 40),
+            const SizedBox(height: 40),
             Center(
-              child: Stack(
-                alignment: Alignment.center,
-                clipBehavior: Clip.none,
-                children: <Widget>[
-                  // Breathing animation outer ring
-                  Visibility(
-                    visible: _ringVisible,
-                    child: Container(
-                      width: circleWidth + 20,
-                      height: circleHeight + 20,
+              child: SizedBox(
+                width: circleWidth + (circlePadding * 2),
+                height: circleHeight + (circlePadding * 2),
+                child: Stack(
+                  alignment: Alignment.center,
+                  clipBehavior: Clip.none,
+                  children: <Widget>[
+                    // Breathing animation outer ring (Feature Request #134)
+                    Container(
+                      width: circleWidth,
+                      height: circleHeight,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: Theme.of(context)
                               .colorScheme
                               .primary
-                              .withOpacity(0.2),
+                              .withValues(alpha: 0.15),
                           width: ringWidth,
                         ),
                       ),
                     ),
-                  ),
 
-                  // Breathing animation circle
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 100),
-                    width: circleWidth * (0.5 + _scale * 0.5),
-                    height: circleHeight * (0.5 + _scale * 0.5),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withOpacity(0.3),
-                          blurRadius: 20,
-                          spreadRadius: 5 * _scale,
-                        ),
-                      ],
+                    // Breathing animation circle
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 100),
+                      width: circleWidth * _scale,
+                      height: circleHeight * _scale,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withValues(alpha: 0.3),
+                            blurRadius: 20,
+                            spreadRadius: 5 * _scale,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
+            const SizedBox(height: 40),
+            const SizedBox(height: 40),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -625,7 +631,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                   getDurationString(_duration),
                   AppLocalizations.of(context).duration,
                 ),
-                const SizedBox(width: 20),
+                const SizedBox(width: 40),
                 _buildInfoCard(
                   context,
                   Icons.air_outlined,
@@ -638,6 +644,7 @@ class _HomeWidgetState extends State<HomeWidget> {
         ),
       ),
       drawer: NavigationDrawer(
+        selectedIndex: -1,
         onDestinationSelected: (int index) async {
           Navigator.pop(context); // Close drawer
           if (index == 0) {
@@ -709,7 +716,7 @@ class _HomeWidgetState extends State<HomeWidget> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
             child: Text(
-              "Appearance",
+              AppLocalizations.of(context).appearance,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.bold,
@@ -762,7 +769,7 @@ class _HomeWidgetState extends State<HomeWidget> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
             child: Text(
-              "Custom Tones",
+              AppLocalizations.of(context).customTones,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.bold,
@@ -772,7 +779,7 @@ class _HomeWidgetState extends State<HomeWidget> {
           ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 28),
             leading: const Icon(Icons.library_music_outlined),
-            title: const Text("Add Custom Sound"),
+            title: Text(AppLocalizations.of(context).addCustomSound),
             onTap: () async {
               FilePickerResult? result = await FilePicker.platform.pickFiles(
                 type: FileType.audio,

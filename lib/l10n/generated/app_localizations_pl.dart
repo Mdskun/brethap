@@ -128,16 +128,22 @@ class AppLocalizationsPl extends AppLocalizations {
   String get enterAName => 'Wpisz nazwę';
 
   @override
-  String get general => 'General';
+  String get general => 'Ogólne';
 
   @override
-  String get feedback => 'Feedback';
+  String get feedback => 'Opinia';
 
   @override
-  String get appearance => 'Appearance';
+  String get appearance => 'Wygląd';
 
   @override
-  String get name => 'Name';
+  String get customTones => 'Niestandardowe dźwięki';
+
+  @override
+  String get addCustomSound => 'Dodaj dźwięk';
+
+  @override
+  String get name => 'Nazwa';
 
   @override
   String get sessions => 'Sesje';

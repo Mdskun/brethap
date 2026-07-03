@@ -360,6 +360,18 @@ abstract class AppLocalizations {
   /// **'Appearance'**
   String get appearance;
 
+  /// No description provided for @customTones.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Tones'**
+  String get customTones;
+
+  /// No description provided for @addCustomSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Custom Sound'**
+  String get addCustomSound;
+
   /// No description provided for @name.
   ///
   /// In en, this message translates to:

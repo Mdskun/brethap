@@ -510,6 +510,7 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
               ),
               const Divider(),
               SwitchListTile(
+                key: const Key(DURATION_TTS_TEXT),
                 title: Text(AppLocalizations.of(context).durationTts),
                 value: _durationTts,
                 onChanged: (value) {
@@ -555,6 +556,7 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
           _buildPreferenceCard(
             children: [
               _buildBreathSlider(
+                key: const Key(INHALE_TEXT),
                 label: AppLocalizations.of(context).inhale,
                 value: _inhale0,
                 min: PreferencesWidget.minBreath.toDouble(),
@@ -565,9 +567,10 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
                 }),
                 onEnd: () => preference.save(),
                 displayValue:
-                    "${(preference.inhale[0] / 1000).toStringAsFixed(1)}s",
+                    "${(preference.inhale[0] / 1000).toStringAsFixed(1)} s",
               ),
               _buildBreathSlider(
+                key: const Key(INHALE_HOLD_TEXT),
                 label: AppLocalizations.of(context).inhaleHold,
                 value: _inhale1,
                 min: 0,
@@ -578,9 +581,10 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
                 }),
                 onEnd: () => preference.save(),
                 displayValue:
-                    "${(preference.inhale[1] / 1000).toStringAsFixed(1)}s",
+                    "${(preference.inhale[1] / 1000).toStringAsFixed(1)} s",
               ),
               _buildBreathSlider(
+                key: const Key(INHALE_LAST_TEXT),
                 label: AppLocalizations.of(context).inhaleLast,
                 value: _inhale2,
                 min: 0,
@@ -591,10 +595,11 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
                 }),
                 onEnd: () => preference.save(),
                 displayValue:
-                    "${(preference.inhale[2] / 1000).toStringAsFixed(1)}s",
+                    "${(preference.inhale[2] / 1000).toStringAsFixed(1)} s",
               ),
               const Divider(),
               _buildAudioDropdown(
+                key: const Key(INHALE_AUDIO_TEXT),
                 label: AppLocalizations.of(context).inhaleAudio,
                 value: _audio0,
                 onChanged: (val) {
@@ -607,6 +612,7 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
                 },
               ),
               _buildAudioDropdown(
+                key: const Key(INHALE_HOLD_AUDIO_TEXT),
                 label: AppLocalizations.of(context).inhaleHoldAudio,
                 value: _audio2,
                 onChanged: (val) {
@@ -625,6 +631,7 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
           _buildPreferenceCard(
             children: [
               _buildBreathSlider(
+                key: const Key(EXHALE_TEXT),
                 label: AppLocalizations.of(context).exhale,
                 value: _exhale0,
                 min: PreferencesWidget.minBreath.toDouble(),
@@ -635,9 +642,10 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
                 }),
                 onEnd: () => preference.save(),
                 displayValue:
-                    "${(preference.exhale[0] / 1000).toStringAsFixed(1)}s",
+                    "${(preference.exhale[0] / 1000).toStringAsFixed(1)} s",
               ),
               _buildBreathSlider(
+                key: const Key(EXHALE_HOLD_TEXT),
                 label: AppLocalizations.of(context).exhaleHold,
                 value: _exhale1,
                 min: 0,
@@ -648,9 +656,10 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
                 }),
                 onEnd: () => preference.save(),
                 displayValue:
-                    "${(preference.exhale[1] / 1000).toStringAsFixed(1)}s",
+                    "${(preference.exhale[1] / 1000).toStringAsFixed(1)} s",
               ),
               _buildBreathSlider(
+                key: const Key(EXHALE_LAST_TEXT),
                 label: AppLocalizations.of(context).exhaleLast,
                 value: _exhale2,
                 min: 0,
@@ -661,10 +670,11 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
                 }),
                 onEnd: () => preference.save(),
                 displayValue:
-                    "${(preference.exhale[2] / 1000).toStringAsFixed(1)}s",
+                    "${(preference.exhale[2] / 1000).toStringAsFixed(1)} s",
               ),
               const Divider(),
               _buildAudioDropdown(
+                key: const Key(EXHALE_AUDIO_TEXT),
                 label: AppLocalizations.of(context).exhaleAudio,
                 value: _audio1,
                 onChanged: (val) {
@@ -677,6 +687,7 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
                 },
               ),
               _buildAudioDropdown(
+                key: const Key(EXHALE_HOLD_AUDIO_TEXT),
                 label: AppLocalizations.of(context).exhaleHoldAudio,
                 value: _audio3,
                 onChanged: (val) {
@@ -723,6 +734,7 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
                 const Divider(),
               ],
               SwitchListTile(
+                key: const Key(BREATH_TTS_TEXT),
                 title: Text(AppLocalizations.of(context).breathTts),
                 value: _breathTts,
                 onChanged: (value) {
@@ -775,6 +787,7 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
   }
 
   Widget _buildBreathSlider({
+    Key? key,
     required String label,
     required double value,
     required double min,
@@ -793,6 +806,7 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
           ],
         ),
         Slider(
+          key: key,
           value: value,
           min: min,
           max: max,
@@ -805,6 +819,7 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
   }
 
   Widget _buildAudioDropdown({
+    Key? key,
     required String label,
     required String value,
     required Function(String?) onChanged,
@@ -827,6 +842,7 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
       children: [
         Expanded(child: Text(label)),
         DropdownButton<String>(
+          key: key,
           value: items.contains(value) ? value : AUDIO_NONE,
           icon: const Icon(Icons.keyboard_arrow_down),
           onChanged: onChanged,

@@ -11,22 +11,18 @@ import 'test_utils.dart';
 const Duration wait = Duration(seconds: 2);
 
 Future<void> openDrawer(WidgetTester tester) async {
-  Finder navigationMenu = find.byType(IconButton).first;
+  Finder navigationMenu = find.byTooltip('Open navigation menu');
+  if (navigationMenu.evaluate().isEmpty) {
+    navigationMenu = find.byIcon(Icons.menu);
+  }
   expect(navigationMenu, findsOneWidget);
-  await tester.tap(navigationMenu, warnIfMissed: false);
-  await tester.pump(wait * .5);
-  await tester.pump(wait * .5);
+  await tester.tap(navigationMenu);
+  await tester.pumpAndSettle();
 }
 
 Future<void> closeDrawer(WidgetTester tester) async {
-  Size size = tester.getSize(find.byType(Scaffold));
-  await tester.flingFrom(
-    Offset(size.width - 1, size.height / 2),
-    const Offset(-100, 0),
-    1000,
-  );
-  await tester.pump(wait * .5);
-  await tester.pump(wait * .5);
+  await tester.tapAt(const Offset(700, 400)); // Tap outside drawer
+  await tester.pumpAndSettle();
 }
 
 Future<void> testPreferencesMenu(WidgetTester tester, String key) async {
@@ -124,8 +120,18 @@ Future<void> testHomeWidget(WidgetTester tester) async {
   // Verify calendar
   expect(find.text(HomeWidget.keyCalendar), findsOneWidget);
 
-  // Verify about
-  expect(find.text("About $APP_NAME"), findsOneWidget);
+  // Scroll to find custom tones
+  Finder customTones = find.textContaining("Custom Tones");
+  await tester.dragUntilVisible(
+    customTones,
+    find.byType(NavigationDrawer),
+    const Offset(0, -200),
+  );
+  await tester.pumpAndSettle();
+
+  // Verify custom tones
+  expect(customTones, findsWidgets);
+  expect(find.textContaining("Add Custom Sound"), findsOneWidget);
 
   // Close the drawer
   await closeDrawer(tester);
@@ -155,6 +161,7 @@ Future<void> main() async {
           version: APP_VERSION,
           preferences: hiveData.preferences,
           sessions: hiveData.sessions,
+          customSounds: hiveData.customSounds,
         ),
       ),
     );

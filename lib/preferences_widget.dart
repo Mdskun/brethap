@@ -511,6 +511,7 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
               const Divider(),
               SwitchListTile(
                 key: const Key(DURATION_TTS_TEXT),
+                contentPadding: EdgeInsets.zero,
                 title: Text(AppLocalizations.of(context).durationTts),
                 value: _durationTts,
                 onChanged: (value) {
@@ -735,6 +736,7 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
               ],
               SwitchListTile(
                 key: const Key(BREATH_TTS_TEXT),
+                contentPadding: EdgeInsets.zero,
                 title: Text(AppLocalizations.of(context).breathTts),
                 value: _breathTts,
                 onChanged: (value) {

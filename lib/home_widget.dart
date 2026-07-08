@@ -581,17 +581,20 @@ class _HomeWidgetState extends State<HomeWidget> {
                   clipBehavior: Clip.none,
                   children: <Widget>[
                     // Breathing animation outer ring (Feature Request #134)
-                    Container(
-                      width: circleWidth,
-                      height: circleHeight,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withValues(alpha: 0.15),
-                          width: ringWidth,
+                    Visibility(
+                      visible: _ringVisible,
+                      child: Container(
+                        width: circleWidth,
+                        height: circleHeight,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withValues(alpha: 0.15),
+                            width: ringWidth,
+                          ),
                         ),
                       ),
                     ),

@@ -21,21 +21,20 @@ Future<void> openDrawer(WidgetTester tester) async {
 }
 
 Future<void> closeDrawer(WidgetTester tester) async {
-  await tester.tapAt(const Offset(700, 400)); // Tap outside drawer
+  final double width = tester.view.physicalSize.width / tester.view.devicePixelRatio;
+  await tester.tapAt(Offset(width - 10, 400)); // Tap outside drawer
   await tester.pumpAndSettle();
 }
 
 Future<void> testPreferencesMenu(WidgetTester tester, String key) async {
-  Finder finder = find.byType(IconButton).last;
+  Finder finder = find.byIcon(Icons.bookmarks_outlined);
   expect(finder, findsOneWidget);
   await tester.tap(finder);
-  await tester.pump(wait * .5);
-  await tester.pump(wait * .5);
+  await tester.pumpAndSettle();
   finder = find.byKey(Key(key));
   expect(finder, findsOneWidget);
   await tester.tap(finder);
-  await tester.pump(wait * .5);
-  await tester.pump(wait * .5);
+  await tester.pumpAndSettle();
 }
 
 Future<void> testHomeWidget(WidgetTester tester) async {

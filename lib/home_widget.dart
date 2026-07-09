@@ -54,9 +54,9 @@ class _HomeWidgetState extends State<HomeWidget> {
       _hasCustomVibrate = false,
       _hasWakelock = false,
       _hasSpeak = false,
-          // ignore: unused_field, prefer_final_fields
-          _hasWear =
-          false;
+  // ignore: unused_field, prefer_final_fields
+      _hasWear =
+      false;
   late Duration _duration;
   late String _status, _preferenceName;
   late FlutterTts _tts;
@@ -139,48 +139,57 @@ class _HomeWidgetState extends State<HomeWidget> {
     _hasWear = await isPhysicalPhone();
 
     if (_hasWear) {
-      _watch = WatchConnectivity();
-      _watch.messageStream.listen(
-        (message) => setState(() {
-          debugPrint('Received message: $message');
+      try {
+        _watch = WatchConnectivity();
+        _watch.messageStream.listen(
+          (message) async {
+            debugPrint('Received message: $message');
 
-          Map<String, dynamic> response = {"received": true};
+            Map<String, dynamic> response = {"received": true};
 
-          // Send a preference
-          int? index = message['preference'] as int?;
-          if (index != null) {
-            Preference preference;
-            if (index < widget.preferences.length) {
-              preference = widget.preferences.get(index);
-            } else {
-              preference = widget.preferences.get(0);
+            // Send a preference
+            int? index = message['preference'] as int?;
+            if (index != null) {
+              Preference preference;
+              if (index < widget.preferences.length) {
+                preference = widget.preferences.get(index);
+              } else {
+                preference = widget.preferences.get(0);
+              }
+              response = preference.toJson();
             }
-            response = preference.toJson();
-          }
 
-          // Received a session
-          if (Session.isSession(message)) {
-            Session session = Session.fromJson(message);
-            _addSession(session);
-            _onDuration(session);
-          }
+            // Received a session
+            if (Session.isSession(message)) {
+              Session session = Session.fromJson(message);
+              _addSession(session);
+              _onDuration(session);
+            }
 
-          _send(response);
-        }),
-      );
+            await _send(response);
+          },
+        );
 
-      if (widget.preferences.isNotEmpty) {
-        Preference preference = widget.preferences.get(0);
-        _send(preference.toJson());
+        if (widget.preferences.isNotEmpty) {
+          Preference preference = widget.preferences.get(0);
+          await _send(preference.toJson());
+        }
+      } catch (e) {
+        debugPrint("Wearable initialization failed: $e");
+        _hasWear = false;
       }
     }
   }
 
   // REMOVE FROM FDROID BUILD
-  void _send(dynamic message) {
+  Future<void> _send(dynamic message) async {
     if (_hasWear) {
-      _watch.sendMessage(message);
-      debugPrint("Sent message: $message");
+      try {
+        await _watch.sendMessage(message);
+        debugPrint("Sent message: $message");
+      } catch (e) {
+        debugPrint("Error sending message to watch: $e");
+      }
     }
   }
 
@@ -309,10 +318,10 @@ class _HomeWidgetState extends State<HomeWidget> {
       int cycle = 0;
       double inhaleScale =
           timerSpan.inMilliseconds /
-          (preference.inhale[0] + preference.inhale[2]);
+              (preference.inhale[0] + preference.inhale[2]);
       double exhaleScale =
           timerSpan.inMilliseconds /
-          (preference.exhale[0] + preference.exhale[2]);
+              (preference.exhale[0] + preference.exhale[2]);
       bool inhaling = true, exhaling = false;
 
       Timer.periodic(timerSpan, (Timer timer) {
@@ -447,11 +456,11 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   Widget _buildInfoCard(
-    BuildContext context,
-    IconData icon,
-    String value,
-    String label,
-  ) {
+      BuildContext context,
+      IconData icon,
+      String value,
+      String label,
+      ) {
     return Column(
       children: [
         Icon(icon, color: Theme.of(context).colorScheme.primary, size: 28),
@@ -721,9 +730,9 @@ class _HomeWidgetState extends State<HomeWidget> {
             child: Text(
               AppLocalizations.of(context).appearance,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           Padding(
@@ -774,9 +783,9 @@ class _HomeWidgetState extends State<HomeWidget> {
             child: Text(
               AppLocalizations.of(context).customTones,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           ListTile(
@@ -791,7 +800,7 @@ class _HomeWidgetState extends State<HomeWidget> {
               if (result != null) {
                 File file = File(result.files.single.path!);
                 String fileName = result.files.single.name;
-                
+
                 // Save to app docs
                 Directory appDocDir = await getApplicationDocumentsDirectory();
                 String newPath = "${appDocDir.path}/$fileName";

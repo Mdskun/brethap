@@ -37,16 +37,15 @@ Future<void> testSwitch(WidgetTester tester, String key, bool value) async {
 Future<void> testAudio(WidgetTester tester, String key, [String? audio]) async {
   audio ??= AUDIO_TONE1;
 
-  final Finder dropdownFinder = find.byKey(Key(key)).first;
-  
+  Finder finder = find.byKey(Key(key), skipOffstage: false);
   await tester.dragUntilVisible(
-    dropdownFinder,
+    finder,
     find.byType(ListView).first,
     const Offset(0, -200),
   );
   await tester.pumpAndSettle();
   
-  await tester.tap(dropdownFinder);
+  await tester.tap(finder);
   await tester.pumpAndSettle();
   
   Finder itemFinder = find.text(audio).last;
@@ -230,7 +229,7 @@ Future<void> testPreferencesWidget(WidgetTester tester) async {
   // Scroll up.
   await tester.dragUntilVisible(
     find.byKey(Key(PreferencesWidget.keyPreferenceName)),
-    find.byType(ListView),
+    find.byType(ListView).first,
     const Offset(0, 500),
   );
   await tester.pumpAndSettle();
@@ -303,7 +302,6 @@ Future<void> testPreferencesWidget(WidgetTester tester) async {
   expect(cont, findsOneWidget);
   await tester.tap(cont);
   await tester.pumpAndSettle();
-  // Don't wait for snackbar, just check if it was triggered
   expect(find.byType(SnackBar), findsWidgets);
 
   // Verify 4-7-8 preset

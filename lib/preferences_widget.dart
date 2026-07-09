@@ -421,6 +421,7 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
         ],
       ),
       body: ListView(
+        key: Key(PreferencesWidget.keyDrag),
         children: [
           _buildSectionHeader(AppLocalizations.of(context).general),
           _buildPreferenceCard(
@@ -775,7 +776,7 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
               ),
             ],
           ),
-          Divider(key: Key(PreferencesWidget.keyDrag), height: 1),
+          const Divider(height: 1),
           const SizedBox(height: 100),
         ],
       ),

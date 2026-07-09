@@ -41,6 +41,18 @@ Future<void> main() async {
 
     await testHomeWidget(tester);
 
+    // Test Color Picker
+    await openDrawer(tester);
+    Finder colorCircles = find.byWidgetPredicate((widget) =>
+        widget is GestureDetector &&
+        widget.child is Container &&
+        (widget.child as Container).decoration is BoxDecoration &&
+        ((widget.child as Container).decoration as BoxDecoration).shape ==
+            BoxShape.circle);
+    expect(colorCircles, findsWidgets);
+    await tester.tap(colorCircles.at(2), warnIfMissed: false);
+    await tester.pumpAndSettle();
+
     await openDrawer(tester);
 
     await tapItem(tester, HomeWidget.keyPreferences);

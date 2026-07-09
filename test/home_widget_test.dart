@@ -132,6 +132,9 @@ Future<void> testHomeWidget(WidgetTester tester) async {
   expect(customTones, findsWidgets);
   expect(find.textContaining("Add Custom Sound"), findsOneWidget);
 
+  // Verify appearance section
+  expect(find.byType(GestureDetector), findsWidgets); // Color circles
+
   // Close the drawer
   await closeDrawer(tester);
 

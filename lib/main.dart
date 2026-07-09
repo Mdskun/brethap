@@ -102,7 +102,6 @@ class MainWidget extends StatelessWidget {
         }
 
         return MaterialApp(
-          key: ValueKey(primaryColor.value),
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(

@@ -68,6 +68,8 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
   @override
   void dispose() {
     debugPrint("$widget.dispose");
+    widget.preferences.getAt(0).save();
+    widget.callback();
     _player.dispose();
     _textEditingController.dispose();
     super.dispose();
@@ -441,9 +443,11 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
                 onChanged: (value) {
                   setState(() {
                     preference.name = value;
-                    preference.save();
-                    widget.callback();
                   });
+                },
+                onEditingComplete: () {
+                  preference.save();
+                  widget.callback();
                 },
               ),
             ],

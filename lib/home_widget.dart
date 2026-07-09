@@ -64,6 +64,8 @@ class _HomeWidgetState extends State<HomeWidget> {
   int _breaths = 0;
   late AudioPlayer _player;
   late WatchConnectivity _watch; // REMOVE FROM FDROID BUILD
+  Timer? _timer;
+  StreamSubscription? _watchSubscription;
 
   @override
   initState() {
@@ -80,12 +82,14 @@ class _HomeWidgetState extends State<HomeWidget> {
   @override
   void dispose() {
     debugPrint("$widget.dispose");
+    _timer?.cancel();
+    _watchSubscription?.cancel();
     _player.dispose();
     super.dispose();
   }
 
   void _init() {
-    if (kDebugMode) {
+    if (kDebugMode && widget.sessions.isEmpty) {
       createRandomSessions(
         widget.sessions,
         HomeWidget.totalSessions,
@@ -141,7 +145,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     if (_hasWear) {
       try {
         _watch = WatchConnectivity();
-        _watch.messageStream.listen(
+        _watchSubscription = _watch.messageStream.listen(
           (message) async {
             debugPrint('Received message: $message');
 
@@ -324,7 +328,7 @@ class _HomeWidgetState extends State<HomeWidget> {
               (preference.exhale[0] + preference.exhale[2]);
       bool inhaling = true, exhaling = false;
 
-      Timer.periodic(timerSpan, (Timer timer) {
+      _timer = Timer.periodic(timerSpan, (Timer timer) {
         if (!_isRunning || (_duration.inSeconds <= 0 && cycle <= 0)) {
           setState(() {
             _status = AppLocalizations.of(context).pressStart;
@@ -416,10 +420,6 @@ class _HomeWidgetState extends State<HomeWidget> {
             }
           });
         }
-
-        debugPrint(
-          "_duration: $_duration _scale: ${_scale.toStringAsFixed(3)} _breaths: $_breaths cycle: $cycle",
-        );
       });
     }
   }

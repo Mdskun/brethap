@@ -77,7 +77,7 @@ Future<void> main() async {
   );
 }
 
-class MainWidget extends StatelessWidget {
+class MainWidget extends StatefulWidget {
   const MainWidget({
     super.key,
     required this.appName,
@@ -91,43 +91,71 @@ class MainWidget extends StatelessWidget {
   final Box preferences, sessions, customSounds;
 
   @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: preferences.listenable(),
-      builder: (context, Box box, _) {
-        MaterialColor primaryColor = COLORS_PRIMARY[0] as MaterialColor;
-        if (box.isNotEmpty) {
-          Preference preference = box.getAt(0);
-          primaryColor = COLORS_PRIMARY[preference.colors[0]] as MaterialColor;
-        }
+  State<MainWidget> createState() => _MainWidgetState();
+}
 
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: primaryColor,
-              brightness: Brightness.light,
-            ),
-            useMaterial3: true,
-          ),
-          darkTheme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: primaryColor,
-              brightness: Brightness.dark,
-            ),
-            useMaterial3: true,
-          ),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: HomeWidget(
-            appName: appName,
-            version: version,
-            preferences: preferences,
-            sessions: sessions,
-            customSounds: customSounds,
-          ),
-        );
-      },
+class _MainWidgetState extends State<MainWidget> {
+  int _colorIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _colorIndex = _getColorIndex();
+    widget.preferences.listenable(keys: [0]).addListener(_onPreferenceChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.preferences.listenable(keys: [0]).removeListener(_onPreferenceChanged);
+    super.dispose();
+  }
+
+  int _getColorIndex() {
+    if (widget.preferences.isNotEmpty) {
+      Preference preference = widget.preferences.getAt(0);
+      return preference.colors[0];
+    }
+    return 0;
+  }
+
+  void _onPreferenceChanged() {
+    int newIndex = _getColorIndex();
+    if (newIndex != _colorIndex) {
+      setState(() {
+        _colorIndex = newIndex;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    MaterialColor primaryColor = COLORS_PRIMARY[_colorIndex] as MaterialColor;
+
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: primaryColor,
+          brightness: Brightness.light,
+        ),
+        useMaterial3: true,
+      ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: primaryColor,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+      ),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: HomeWidget(
+        appName: widget.appName,
+        version: widget.version,
+        preferences: widget.preferences,
+        sessions: widget.sessions,
+        customSounds: widget.customSounds,
+      ),
     );
   }
 }

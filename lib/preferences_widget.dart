@@ -69,7 +69,10 @@ class _PreferencesWidgetState extends State<PreferencesWidget> {
   void dispose() {
     debugPrint("$widget.dispose");
     widget.preferences.getAt(0).save();
-    widget.callback();
+    // Use a post-frame callback to avoid setState during disposal (locked tree)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.callback();
+    });
     _player.dispose();
     _textEditingController.dispose();
     super.dispose();

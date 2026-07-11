@@ -448,6 +448,7 @@ class _HomeWidgetState extends State<HomeWidget> {
   // Callback for variables needed in HomeWidget when PreferenceWidget closes
   void _preferenceUpdated() {
     debugPrint("$widget.preferenceUpdated()");
+    if (!mounted) return;
     Preference preference = widget.preferences.get(0);
     setState(() {
       _duration = Duration(seconds: preference.duration);

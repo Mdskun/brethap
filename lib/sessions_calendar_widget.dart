@@ -106,128 +106,136 @@ class _SessionsCalendarWidgetState extends State<SessionsCalendarWidget> {
       ),
       body: Column(
         children: [
-          Card(
-            margin: const EdgeInsets.all(16),
-            elevation: 0,
-            color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            child: TableCalendar<Session>(
-              rowHeight: 64,
-              daysOfWeekHeight: 30,
-              firstDay: _firstDay,
-              lastDay: _lastDay,
-              focusedDay: _focusedDay,
-              calendarFormat: _calendarFormat,
-              eventLoader: _getSessionsForDay,
-              availableCalendarFormats: {
-                CalendarFormat.month: AppLocalizations.of(context).month,
-                CalendarFormat.week: AppLocalizations.of(context).week,
-              },
-              headerStyle: HeaderStyle(
-                formatButtonVisible: true,
-                titleCentered: true,
-                formatButtonDecoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                formatButtonTextStyle: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                ),
-              ),
-              calendarStyle: CalendarStyle(
-                markersAlignment: Alignment.bottomCenter,
-                markerMargin: const EdgeInsets.only(bottom: 6),
-                todayDecoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
-                  shape: BoxShape.circle,
-                ),
-                selectedDecoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
-                  shape: BoxShape.circle,
-                ),
-                markerDecoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondary,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              selectedDayPredicate: (day) {
-                return isSameDay(_selectedDay, day);
-              },
-              onDaySelected: (selectedDay, focusedDay) {
-                if (!isSameDay(_selectedDay, selectedDay)) {
-                  setState(() {
-                    _selectedDay = selectedDay;
-                    _focusedDay = focusedDay;
-                    _selectedSessions.value = _getSessionsForDay(selectedDay);
-                  });
-                }
-              },
-              onFormatChanged: (format) {
-                if (_calendarFormat != format) {
-                  setState(() {
-                    _calendarFormat = format;
-                    _selectedDay = null;
-                    _selectedSessions.value = [];
-                    _updateStats();
-                  });
-                }
-              },
-              onPageChanged: (focusedDay) {
-                _focusedDay = focusedDay;
-                _selectedDay = null;
-                setState(() {
-                  _selectedSessions.value = [];
-                  _updateStats();
-                });
-              },
-              calendarBuilders: CalendarBuilders(
-                markerBuilder: (context, date, events) {
-                  if (events.isNotEmpty) {
-                    DateTime dt = DateTime(date.year, date.month, date.day);
-                    Color color = Theme.of(context).colorScheme.secondary;
-                    if (dt.compareTo(_statFirstDay) < 0 ||
-                        dt.compareTo(_statLastDay) >= 0) {
-                      color = Theme.of(context).disabledColor;
-                    }
-
-                    return Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: color,
-                      ),
-                      width: 16.0,
-                      height: 16.0,
-                      child: Center(
-                        child: Text(
-                          '${events.length}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10.0,
-                            fontWeight: FontWeight.bold,
-                          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Card(
+                    margin: const EdgeInsets.all(16),
+                    elevation: 0,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                    child: TableCalendar<Session>(
+                      rowHeight: 64,
+                      daysOfWeekHeight: 30,
+                      firstDay: _firstDay,
+                      lastDay: _lastDay,
+                      focusedDay: _focusedDay,
+                      calendarFormat: _calendarFormat,
+                      eventLoader: _getSessionsForDay,
+                      availableCalendarFormats: {
+                        CalendarFormat.month: AppLocalizations.of(context).month,
+                        CalendarFormat.week: AppLocalizations.of(context).week,
+                      },
+                      headerStyle: HeaderStyle(
+                        formatButtonVisible: true,
+                        titleCentered: true,
+                        formatButtonDecoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        formatButtonTextStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
                         ),
                       ),
-                    );
-                  }
-                  return null;
-                },
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            child: Row(
-              children: [
-                Text(
-                  _selectedDay != null
-                      ? DateFormat.yMMMMd().format(_selectedDay!)
-                      : AppLocalizations.of(context).sessions,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      calendarStyle: CalendarStyle(
+                        markersAlignment: Alignment.bottomCenter,
+                        markerMargin: const EdgeInsets.only(bottom: 6),
+                        todayDecoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        selectedDecoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        markerDecoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.secondary,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      selectedDayPredicate: (day) {
+                        return isSameDay(_selectedDay, day);
+                      },
+                      onDaySelected: (selectedDay, focusedDay) {
+                        if (!isSameDay(_selectedDay, selectedDay)) {
+                          setState(() {
+                            _selectedDay = selectedDay;
+                            _focusedDay = focusedDay;
+                            _selectedSessions.value = _getSessionsForDay(selectedDay);
+                          });
+                        }
+                      },
+                      onFormatChanged: (format) {
+                        if (_calendarFormat != format) {
+                          setState(() {
+                            _calendarFormat = format;
+                            _selectedDay = null;
+                            _selectedSessions.value = [];
+                            _updateStats();
+                          });
+                        }
+                      },
+                      onPageChanged: (focusedDay) {
+                        _focusedDay = focusedDay;
+                        _selectedDay = null;
+                        setState(() {
+                          _selectedSessions.value = [];
+                          _updateStats();
+                        });
+                      },
+                      calendarBuilders: CalendarBuilders(
+                        markerBuilder: (context, date, events) {
+                          if (events.isNotEmpty) {
+                            DateTime dt = DateTime(date.year, date.month, date.day);
+                            Color color = Theme.of(context).colorScheme.secondary;
+                            if (dt.compareTo(_statFirstDay) < 0 ||
+                                dt.compareTo(_statLastDay) >= 0) {
+                              color = Theme.of(context).disabledColor;
+                            }
+
+                            return Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: color,
+                              ),
+                              width: 16.0,
+                              height: 16.0,
+                              child: Center(
+                                child: Text(
+                                  '${events.length}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    child: Row(
+                      children: [
+                        Text(
+                          _selectedDay != null
+                              ? DateFormat.yMMMMd().format(_selectedDay!)
+                              : AppLocalizations.of(context).sessions,
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           Expanded(
